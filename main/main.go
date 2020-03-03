@@ -12,9 +12,12 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 )
 var listPost = list.New()
 func main(){
+	var timenow = time.Now()
 	var info = GetUserInfo("https://www.iesdouyin.com/share/user/24058267831")
 	var sign = GetSignature(info)
 	var maxCursor = 0
@@ -32,10 +35,12 @@ func main(){
 	}
 	var listDesc = make([]*model.Description,0,0)
 	var authorName = ""
+	var wg sync.WaitGroup
 	for l := listPost.Front(); l!=nil;l=l.Next() {
 		for _, awe := range l.Value.(*model.DouyinPost).AwemeList{
 			authorName = awe.Author.Nickname
-			DownloadVideo(awe.Author.Nickname,awe.Video.PlayAddr.URLList[0],awe.AwemeID)
+			wg.Add(1)
+			go DownloadVideo(awe.Author.Nickname,awe.Video.PlayAddr.URLList[0],awe.AwemeID,&wg)
 			var desc = &model.Description{
 				Id:   awe.AwemeID,
 				Desc: awe.Desc,
@@ -45,7 +50,10 @@ func main(){
 
 	}
 	data ,_ := json.Marshal(listDesc)
-	ioutil.WriteFile("./Downloaded/"+authorName+"/Description.json",data,777)
+	_ = ioutil.WriteFile("./Downloaded/"+authorName+"/Description.json", data, 0777)
+
+	wg.Wait()
+	fmt.Println(time.Now().Sub(timenow))
 }
 
 func GetUserInfo(url string) *model.SignaturePost  {
@@ -111,7 +119,9 @@ func GetPostData(uid string,sign string, maxCursor int) *model.DouyinPost {
 	return name
 }
 
-func DownloadVideo(name string,url string, filename string) error  {
+func DownloadVideo(name string,url string, filename string,wg *sync.WaitGroup) error  {
+	fmt.Println("Start downloading",filename+".mp4")
+	defer wg.Done()
 	rootPath := "./Downloaded/"+name
 	if _, err := os.Stat(rootPath); os.IsNotExist(err) {
 		os.Mkdir(rootPath,777)
@@ -123,10 +133,14 @@ func DownloadVideo(name string,url string, filename string) error  {
 		return err
 	}
 	defer resp.Body.Close()
-	buffer,_ :=ioutil.ReadAll(resp.Body)
+	buffer,err :=ioutil.ReadAll(resp.Body)
+	if err !=nil{
+		return err
+	}
 	err = ioutil.WriteFile(rootPath+"/"+filename+".mp4",buffer,777)
 	if err != nil {
 		return err
 	}
+	fmt.Println(filename+".mp4","downloaded!")
 	return nil
 }
