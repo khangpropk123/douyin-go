@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"fyne.io/fyne"
 	"fyne.io/fyne/app"
+	"fyne.io/fyne/layout"
 	"fyne.io/fyne/widget"
 	"io/ioutil"
 	"net/http"
@@ -30,36 +31,38 @@ func main() {
 		Width:  800,
 		Height: 600,
 	})
+	w.CenterOnScreen()
 	var progress = widget.NewProgressBar()
 	var textBox = widget.NewEntry()
+	textBox.Text = "https://v.douyin.com/nH3dch"
 	var button = widget.NewButton("Download", func() {
 	})
-	var scrollContent = widget.NewVBox()
-	var scrollAria = widget.NewScrollContainer(
-		scrollContent,
-	)
+	//var scrollContent = widget.NewVBox()
+	//var scrollAria = widget.NewScrollContainer(
+	//	scrollContent,
+	//)
+	var group = widget.NewGroupWithScroller("Files:")
 	button.OnTapped = func() {
 		if textBox.Text == "" {
 		} else {
-			go MainWorkFlow(textBox.Text, progress, button, scrollContent)
+			go MainWorkFlow(textBox.Text, progress, button, group)
 			button.OnTapped = func() {
 				w.Close()
 			}
 		}
 	}
+
 	var boxItem = widget.NewVBox(
 		widget.NewLabel("Input profile link: "),
 		textBox,
 		button,
 		progress,
-		scrollAria,
 	)
-
-	w.SetContent(boxItem)
+	w.SetContent(fyne.NewContainerWithLayout(layout.NewGridLayoutWithRows(1), boxItem, fyne.NewContainerWithLayout(layout.NewGridLayoutWithRows(1), group)))
 
 	w.ShowAndRun()
 }
-func MainWorkFlow(url string, progress *widget.ProgressBar, button *widget.Button, vbBox *widget.Box) {
+func MainWorkFlow(url string, progress *widget.ProgressBar, button *widget.Button, group *widget.Group) {
 	button.Disable()
 	var info = GetUserInfo(url)
 	var sign = GetSignature(info)
@@ -91,7 +94,7 @@ func MainWorkFlow(url string, progress *widget.ProgressBar, button *widget.Butto
 		for _, awe := range l.Value.(*model.DouyinPost).AwemeList {
 			authorName = awe.Author.Nickname
 			wg.Add(1)
-			vbBox.Append(widget.NewLabel("Download video: " + awe.AwemeID + ".mp4"))
+			group.Append(widget.NewLabel("Download video: " + awe.AwemeID + ".mp4"))
 			go DownloadVideo(awe.Author.Nickname, awe.Video.PlayAddr.URLList[0], awe.AwemeID, &wg, progress)
 			var desc = &model.Description{
 				Id:   awe.AwemeID,
