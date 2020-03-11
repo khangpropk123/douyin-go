@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
@@ -22,6 +23,7 @@ import (
 var listPost = list.New()
 
 func main() {
+	_, _ = exec.Command("cmd", "set", "FYNE_FONT=font.ttf").CombinedOutput()
 	a := app.New()
 	data, _ := ioutil.ReadFile("icon.png")
 	src := fyne.NewStaticResource("icon", data)
@@ -42,27 +44,30 @@ func main() {
 	//	scrollContent,
 	//)
 	var group = widget.NewGroupWithScroller("Files:")
+	var groupAuthor = widget.NewGroupWithScroller("Information")
+	var boxItem = widget.NewVBox(
+		widget.NewLabel(""),
+		widget.NewLabel(""),
+		widget.NewLabel("Input profile link: "),
+		textBox,
+		button,
+		progress,
+		groupAuthor,
+	)
 	button.OnTapped = func() {
 		if textBox.Text == "" {
 		} else {
-			go MainWorkFlow(textBox.Text, progress, button, group)
+			go MainWorkFlow(textBox.Text, progress, button, group, boxItem)
 			button.OnTapped = func() {
 				w.Close()
 			}
 		}
 	}
-
-	var boxItem = widget.NewVBox(
-		widget.NewLabel("Input profile link: "),
-		textBox,
-		button,
-		progress,
-	)
 	w.SetContent(fyne.NewContainerWithLayout(layout.NewGridLayoutWithRows(1), boxItem, fyne.NewContainerWithLayout(layout.NewGridLayoutWithRows(1), group)))
 
 	w.ShowAndRun()
 }
-func MainWorkFlow(url string, progress *widget.ProgressBar, button *widget.Button, group *widget.Group) {
+func MainWorkFlow(url string, progress *widget.ProgressBar, button *widget.Button, group *widget.Group, vBox *widget.Box) {
 	button.Disable()
 	var info = GetUserInfo(url)
 	var sign = GetSignature(info)
@@ -70,12 +75,10 @@ func MainWorkFlow(url string, progress *widget.ProgressBar, button *widget.Butto
 	post := GetPostData(info.Uid, sign.Signature, maxCursor)
 	listPost.PushBack(post)
 	for {
-
 		if !post.HasMore {
 			fmt.Println(listPost.Len())
 			break
 		}
-		fmt.Println("Tiep ne")
 		post = GetPostData(info.Uid, sign.Signature, int(post.MaxCursor))
 		listPost.PushBack(post)
 	}
@@ -84,7 +87,18 @@ func MainWorkFlow(url string, progress *widget.ProgressBar, button *widget.Butto
 	var wg sync.WaitGroup
 	progress.Min = 0
 	progress.Max = 0
-
+	if listPost.Len() > 0 {
+		authorName = listPost.Front().Value.(*model.DouyinPost).AwemeList[0].Author.Nickname
+		var follow = listPost.Front().Value.(*model.DouyinPost).AwemeList[0].Author.FollowerCount
+		var region = listPost.Front().Value.(*model.DouyinPost).AwemeList[0].Author.Region
+		var id = listPost.Front().Value.(*model.DouyinPost).AwemeList[0].Author.ShortID
+		var sign = listPost.Front().Value.(*model.DouyinPost).AwemeList[0].Author.Signature
+		vBox.Append(widget.NewLabel("Author Name: " + authorName))
+		vBox.Append(widget.NewLabel("Follow Count: " + strconv.Itoa(follow)))
+		vBox.Append(widget.NewLabel("Region: " + region))
+		vBox.Append(widget.NewLabel("ID: " + id))
+		vBox.Append(widget.NewLabel("Signature: " + sign))
+	}
 	for l := listPost.Front(); l != nil; l = l.Next() {
 		for _, _ = range l.Value.(*model.DouyinPost).AwemeList {
 			progress.Max++
@@ -93,6 +107,7 @@ func MainWorkFlow(url string, progress *widget.ProgressBar, button *widget.Butto
 	for l := listPost.Front(); l != nil; l = l.Next() {
 		for _, awe := range l.Value.(*model.DouyinPost).AwemeList {
 			authorName = awe.Author.Nickname
+			//vBox.Append(widget.NewLabel("Author Name: "+authorName))
 			wg.Add(1)
 			group.Append(widget.NewLabel("Download video: " + awe.AwemeID + ".mp4"))
 			go DownloadVideo(awe.Author.Nickname, awe.Video.PlayAddr.URLList[0], awe.AwemeID, &wg, progress)
@@ -107,6 +122,7 @@ func MainWorkFlow(url string, progress *widget.ProgressBar, button *widget.Butto
 	_ = ioutil.WriteFile("./Downloaded/"+authorName+"/Description.json", data, 0777)
 	wg.Wait()
 	button.Text = "Done"
+	progress.SetValue(progress.Max)
 	button.Enable()
 }
 func GetUserInfo(url string) *model.SignaturePost {
@@ -173,14 +189,13 @@ func GetPostData(uid string, sign string, maxCursor int) *model.DouyinPost {
 }
 
 func DownloadVideo(name string, url string, filename string, wg *sync.WaitGroup, progress *widget.ProgressBar) error {
-	fmt.Println("Start downloading", filename+".mp4")
 	defer wg.Done()
 	rootPath := "./Downloaded/" + name
 	if _, err := os.Stat(rootPath); os.IsNotExist(err) {
 		os.Mkdir(rootPath, 0777)
 	}
 	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Linux; U; Android 5.1.1; zh-cn; MI 4S Build/LMY47V) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/53.0.2785.146 Mobile Safari/537.36 XiaoMi/MiuiBrowser/9.1.3")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
