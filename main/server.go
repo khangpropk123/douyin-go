@@ -39,5 +39,5 @@ func main() {
 	beego.Router("/download", controller, "get:GetDownloadFile")
 	beego.Router("/", controller, "get:Index")
 	beego.SetStaticPath("/", "views")
-	beego.Run()
+	beego.Run("0.0.0.0:8080")
 }
