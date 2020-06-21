@@ -24,6 +24,10 @@ type Controller struct {
 	Mutex    *sync.Mutex
 }
 
+func (c *Controller) Index() {
+	c.TplName = "index.html"
+}
+
 func (c *Controller) GetDownloadFile() {
 	file := c.GetString("file", "")
 	kind, _ := c.GetInt("kind", 1)

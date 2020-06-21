@@ -37,5 +37,7 @@ func main() {
 	}()
 	beego.Router("/tiktok", controller, "get:WsConnect")
 	beego.Router("/download", controller, "get:GetDownloadFile")
+	beego.Router("/", controller, "get:Index")
+	beego.SetStaticPath("/", "views")
 	beego.Run()
 }
