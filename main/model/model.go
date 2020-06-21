@@ -35,7 +35,7 @@ type DouyinPost struct {
 			StoryOpen         bool   `json:"story_open"`
 			WithCommerceEntry bool   `json:"with_commerce_entry"`
 			FavoritingCount   int    `json:"favoriting_count"`
-			TotalFavorited    int    `json:"total_favorited"`
+			TotalFavorited    string `json:"total_favorited"`
 			WithShopEntry     bool   `json:"with_shop_entry"`
 			SecUID            string `json:"sec_uid"`
 			AvatarThumb       struct {
@@ -121,7 +121,7 @@ type DouyinPost struct {
 	MaxCursor int64 `json:"max_cursor"`
 }
 
-type SignaturePost struct{
+type SignaturePost struct {
 	Tac string `json:"tac"`
 	Uid string `json:"uid"`
 }
@@ -130,6 +130,6 @@ type SignatureResp struct {
 	UserAgent string `json:"user-agent"`
 }
 type Description struct {
-	Id string `json:"id"`
+	Id   string `json:"id"`
 	Desc string `json:"desc"`
 }
