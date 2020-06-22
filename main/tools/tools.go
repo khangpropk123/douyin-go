@@ -139,7 +139,7 @@ func MainWorkFlow(data *Req, ws *websocket.Conn, mutex *sync.Mutex) string {
 	wg.Wait()
 	ZipFolder(path, "./Downloaded/"+authorName+".zip")
 	info.State = 2
-	info.Result = "http://localhost:8080/download?kind=1&file=" + authorName + ".zip"
+	info.Result = "http://65.52.184.198/download?kind=1&file=" + authorName + ".zip"
 	_ = ws.WriteJSON(info)
 	_ = os.RemoveAll(path)
 	return "./Downloaded/" + authorName + ".zip"
