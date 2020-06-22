@@ -53,12 +53,12 @@ class Content1 extends React.Component {
   }
   handleTiktok=(kind)=>{
     let cookiesObj = {}
-    
+
     try {
       cookiesObj = JSON.parse(this.state.cookies)
       console.log(cookiesObj)
     } catch (error) {
-      
+
     }
     let data = {
       username:this.state.username,
@@ -70,7 +70,7 @@ class Content1 extends React.Component {
       play:this.state.play
     }
     console.log(JSON.stringify(data))
-    let ws = new WebSocket("ws://localhost:8080/tiktok")
+    let ws = new WebSocket("ws://65.52.184.198/tiktok")
     ws.onopen  = (event)=>{
       ws.send(JSON.stringify(data))
     }
@@ -96,7 +96,7 @@ class Content1 extends React.Component {
         this.setState({
           progress:100,
           finalLink:res.result,
-          modelVisible:false    
+          modelVisible:false
         })
         ws.close()
         this.setState({

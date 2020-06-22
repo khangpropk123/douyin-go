@@ -73,7 +73,7 @@ func MainWorkFlow(data *Req, ws *websocket.Conn, mutex *sync.Mutex) string {
 			Region:     post.AwemeList[0].Author.Region,
 			Sign:       post.AwemeList[0].Author.Signature,
 			State:      2,
-			Result:     "http://localhost:8080/download?kind=1&file=" + post.AwemeList[0].Author.Nickname + ".zip",
+			Result:     "http://65.52.184.198/download?kind=1&file=" + post.AwemeList[0].Author.Nickname + ".zip",
 			Total:      0,
 			Progress:   0,
 		}

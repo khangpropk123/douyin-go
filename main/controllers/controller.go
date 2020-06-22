@@ -102,7 +102,7 @@ func (c *Controller) WsConnect() {
 				Region:     "",
 				Sign:       "",
 				State:      2,
-				Result:     "http://localhost:8080/download?kind=2&file=" + file,
+				Result:     "http://65.52.184.198/download?kind=2&file=" + file,
 				Total:      100,
 				Progress:   100,
 			})
@@ -117,7 +117,7 @@ func (c *Controller) WsConnect() {
 				Region:     "",
 				Sign:       "",
 				State:      2,
-				Result:     "http://localhost:8080/download?kind=3&file=" + file,
+				Result:     "http://65.52.184.198/download?kind=3&file=" + file,
 				Total:      100,
 				Progress:   100,
 			})
