@@ -238,7 +238,7 @@ export const Content102DataSource = {
     children: 'https://logotyp.us/file/facebook.svg',
   },
   textWrapper: { className: 'content1-text', md: 14, xs: 24 },
-  title: { className: 'content1-title', children: 'Douyin (Tiktok China)' },
+  title: { className: 'content1-title', children: 'Facebook' },
   content: {
     className: 'content1-content',
     children:
