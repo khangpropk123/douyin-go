@@ -65,21 +65,21 @@ func MainWorkFlow(data *Req, ws *websocket.Conn, mutex *sync.Mutex) string {
 	var sign = GetSignature(link)
 	var maxCursor = 0
 	post := GetPostData(link.Uid, sign.Signature, maxCursor)
-	//if fileExists("./Downloaded/" + post.AwemeList[0].Author.Nickname + ".zip") {
-	//	var res = &Info{
-	//		AuthorName: post.AwemeList[0].Author.Nickname,
-	//		Id:         post.AwemeList[0].Author.ShortID,
-	//		Follow:     post.AwemeList[0].Author.FollowingCount,
-	//		Region:     post.AwemeList[0].Author.Region,
-	//		Sign:       post.AwemeList[0].Author.Signature,
-	//		State:      2,
-	//		Result:     "http://65.52.184.198/download?kind=1&file=" + post.AwemeList[0].Author.Nickname + ".zip",
-	//		Total:      0,
-	//		Progress:   0,
-	//	}
-	//	_ = ws.WriteJSON(res)
-	//	return ""
-	//}
+	if fileExists("./Downloaded/" + post.AwemeList[0].Author.Nickname + ".zip") {
+		var res = &Info{
+			AuthorName: post.AwemeList[0].Author.Nickname,
+			Id:         post.AwemeList[0].Author.ShortID,
+			Follow:     post.AwemeList[0].Author.FollowingCount,
+			Region:     post.AwemeList[0].Author.Region,
+			Sign:       post.AwemeList[0].Author.Signature,
+			State:      2,
+			Result:     "http://65.52.184.198/download?kind=1&file=" + post.AwemeList[0].Author.Nickname + ".zip",
+			Total:      0,
+			Progress:   0,
+		}
+		_ = ws.WriteJSON(res)
+		return ""
+	}
 	listPost.PushBack(post)
 	for {
 		if !post.HasMore {
@@ -139,7 +139,7 @@ func MainWorkFlow(data *Req, ws *websocket.Conn, mutex *sync.Mutex) string {
 	wg.Wait()
 	ZipFolder(path, "./Downloaded/"+authorName+".zip")
 	info.State = 2
-	info.Result = "http://65.52.184.198/download?kind=1&file=" + authorName + ".zip"
+	info.Result = "http://localhost:8080/download?kind=1&file=" + authorName + ".zip"
 	_ = ws.WriteJSON(info)
 	_ = os.RemoveAll(path)
 	return "./Downloaded/" + authorName + ".zip"
