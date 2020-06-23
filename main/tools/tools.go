@@ -47,6 +47,10 @@ type Info struct {
 	Total      int    `json:"total"`
 	Progress   int    `json:"progress"`
 }
+type SignatureInfo struct {
+	Signature string `json:"signature"`
+	UserAgent string `json:"user-agent"`
+}
 
 const MOBILE_HEADER = "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1"
 const NORMAL_HEADER = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
@@ -61,33 +65,42 @@ func MainWorkFlow(data *Req, ws *websocket.Conn, mutex *sync.Mutex) string {
 		})
 		return ""
 	}
-	var link = GetUserInfo(data.Url)
-	var sign = GetSignature(link)
+	var link = GetUserInfoEx(data.Url)
+	var sign = GetSignatureEx(link)
 	var maxCursor = 0
 	post := GetPostData(link.Uid, sign.Signature, maxCursor)
-	if fileExists("./Downloaded/" + post.AwemeList[0].Author.Nickname + ".zip") {
-		var res = &Info{
-			AuthorName: post.AwemeList[0].Author.Nickname,
-			Id:         post.AwemeList[0].Author.ShortID,
-			Follow:     post.AwemeList[0].Author.FollowingCount,
-			Region:     post.AwemeList[0].Author.Region,
-			Sign:       post.AwemeList[0].Author.Signature,
-			State:      2,
-			Result:     "http://65.52.184.198/download?kind=1&file=" + post.AwemeList[0].Author.Nickname + ".zip",
-			Total:      0,
-			Progress:   0,
-		}
-		_ = ws.WriteJSON(res)
-		return ""
+	//if fileExists("./Downloaded/" + post.AwemeList[0].Author.Nickname + ".zip") {
+	//	var res = &Info{
+	//		AuthorName: post.AwemeList[0].Author.Nickname,
+	//		Id:         post.AwemeList[0].Author.ShortID,
+	//		Follow:     post.AwemeList[0].Author.FollowingCount,
+	//		Region:     post.AwemeList[0].Author.Region,
+	//		Sign:       post.AwemeList[0].Author.Signature,
+	//		State:      2,
+	//		Result:     "http://65.52.184.198/download?kind=1&file=" + post.AwemeList[0].Author.Nickname + ".zip",
+	//		Total:      0,
+	//		Progress:   0,
+	//	}
+	//	_ = ws.WriteJSON(res)
+	//	return ""
+	//}
+	if len(post.AwemeList)>0{
+		listPost.PushBack(post)
 	}
-	listPost.PushBack(post)
+	var cusor = int(post.MaxCursor)
 	for {
+
 		if !post.HasMore {
 			fmt.Println(listPost.Len())
 			break
 		}
-		post = GetPostData(link.Uid, sign.Signature, int(post.MaxCursor))
-		listPost.PushBack(post)
+		if int(post.MaxCursor) > 0{
+			cusor = int(post.MaxCursor)
+		}
+		post = GetPostData(link.Uid, sign.Signature, int(cusor))
+		if  len(post.AwemeList) > 0{
+			listPost.PushBack(post)
+		}
 	}
 	var listDesc = make([]*model.Description, 0, 0)
 	var authorName = ""
@@ -139,7 +152,7 @@ func MainWorkFlow(data *Req, ws *websocket.Conn, mutex *sync.Mutex) string {
 	wg.Wait()
 	ZipFolder(path, "./Downloaded/"+authorName+".zip")
 	info.State = 2
-	info.Result = "http://localhost:8080/download?kind=1&file=" + authorName + ".zip"
+	info.Result = "http://65.52.184.198/download?kind=1&file=" + authorName + ".zip"
 	_ = ws.WriteJSON(info)
 	_ = os.RemoveAll(path)
 	return "./Downloaded/" + authorName + ".zip"
@@ -171,6 +184,36 @@ func GetUserInfo(url string) *model.SignaturePost {
 	return sign
 }
 
+func GetUserInfoEx(url string) *model.SignaturePost  {
+	re := regexp.MustCompile(`/([0-9]+)\?`)
+	uid := re.FindStringSubmatch(url)
+	if len(uid)>0{
+		var sign = &model.SignaturePost{
+			Tac: "",
+			Uid: strings.ReplaceAll(strings.ReplaceAll(uid[0],`/`,""),`?`,""),
+		}
+		fmt.Println(sign)
+		return sign
+	}
+	return nil
+}
+func GetSignatureEx(sign *model.SignaturePost) *SignatureInfo {
+	url := fmt.Sprintf(`http://49.233.200.77:5001/sign/%s/`,sign.Uid)
+	r, _ := http.NewRequest("GET", url,nil)
+	//data,_ := json.Marshal(sign)
+	//fmt.Println(string(data))
+
+	resp, err := http.DefaultClient.Do(r)
+	if err != nil {
+		return nil
+	}
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	var signResp = &SignatureInfo{}
+	_ = json.Unmarshal(body, signResp)
+	fmt.Println(signResp)
+	return signResp
+}
 func GetSignature(sign *model.SignaturePost) *model.SignatureResp {
 	data := url.Values{}
 	data.Set("tac", sign.Tac)
