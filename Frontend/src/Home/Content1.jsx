@@ -109,28 +109,28 @@ class Content1 extends React.Component {
     return(
       <Form {...this.layout}>
         <Form.Item
-        label="Link Profile"
+        label="Link Share Video"
         name="url"
-        rules={[{ required: true, message: 'Please input profile link!' }]}
+        rules={[{ required: true, message: 'Please input video link!' }]}
       >
         <Input onChange={this.changeUrl} />
       </Form.Item>
-      <Form.Item
-        label="Filter"
-        name="filter"
-      >
-        <Row>
-          <Col span={7} style={{marginLeft:"5px"}}>
-          <Input onChange={this.changeCmt} type="number" placeholder="Number comment " />
-          </Col>
-          <Col span={7} style={{marginLeft:"5px"}}>
-          <Input onChange={this.changePlay} type="number" placeholder="Number play count"/>
-          </Col>
-          <Col span={7} style={{marginLeft:"5px"}}>
-          <Input onChange={this.changeShare} type="number" placeholder="Number share"/>
-          </Col>
-        </Row>
-      </Form.Item>
+      {/*<Form.Item*/}
+      {/*  label="Filter"*/}
+      {/*  name="filter"*/}
+      {/*>*/}
+      {/*  <Row>*/}
+      {/*    <Col span={7} style={{marginLeft:"5px"}}>*/}
+      {/*    <Input onChange={this.changeCmt} type="number" placeholder="Number comment " />*/}
+      {/*    </Col>*/}
+      {/*    <Col span={7} style={{marginLeft:"5px"}}>*/}
+      {/*    <Input onChange={this.changePlay} type="number" placeholder="Number play count"/>*/}
+      {/*    </Col>*/}
+      {/*    <Col span={7} style={{marginLeft:"5px"}}>*/}
+      {/*    <Input onChange={this.changeShare} type="number" placeholder="Number share"/>*/}
+      {/*    </Col>*/}
+      {/*  </Row>*/}
+      {/*</Form.Item>*/}
       <Form.Item style={{textAlign:"center"}}>
       <Button type="primary" onClick={()=>this.handleTiktok(0)}>
           Download
