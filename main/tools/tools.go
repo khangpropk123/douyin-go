@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"container/list"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gorilla/websocket"
 	igdl "github.com/siongui/instago/download"
@@ -614,14 +615,17 @@ type VideoDetail struct {
 	} `json:"extra"`
 }
 
-func DownloadDouyin(link string) string {
+func DownloadDouyin(link string) (string,error) {
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		} }
 
 
-	r, _ := http.NewRequest("GET", link, nil)
+	r, err := http.NewRequest("GET", link, nil)
+	if err != nil{
+		return "",err
+	}
 	//r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	r.Header.Add("Host","v.douyin.com")
 	r.Header.Add("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
@@ -630,28 +634,43 @@ func DownloadDouyin(link string) string {
 	r.Header.Add("Connection","keep-alive")
 	r.Header.Add("Upgrade-Insecure-Requests","1")
 	r.Header.Add("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0")
-	resp,_ := client.Do(r)
+	resp, err := client.Do(r)
+	if err != nil{
+		return "",err
+	}
 	defer resp.Body.Close()
 	nextlink,_ := resp.Location()
 	url_id := strings.Split(nextlink.String(),"/")
 	var file = ""
 	if len(url_id) > 6{
-		r2 , _:= http.NewRequest("GET","https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids="+url_id[5],nil)
+		r2 , err := http.NewRequest("GET","https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids="+url_id[5],nil)
+		if err != nil{
+			return "",err
+		}
 		r2.Header.Add("Host","www.iesdouyin.com")
 		r2.Header.Add("Accept","*/*")
 		r2.Header.Add("X-Requested-With","XMLHttpRequest")
 		r2.Header.Add("Referer",nextlink.String())
-		resp2, _ := client.Do(r2)
+		resp2, err := client.Do(r2)
+		if err != nil{
+			return "",err
+		}
 		defer resp2.Body.Close()
 		data, _ := ioutil.ReadAll(resp2.Body)
 		var detail  VideoDetail
-		err := json.Unmarshal(data, &detail)
-		if err!= nil{
-			return ""
+		err = json.Unmarshal(data, &detail)
+		if err != nil{
+			return "",err
 		}
 		if len(detail.ItemList)>0{
 			fmt.Println(detail.ItemList[0].Video.PlayAddr.URLList[0])
-			file = DownLoad(strings.ReplaceAll(detail.ItemList[0].Video.PlayAddr.URLList[0],"playwm","play"),detail.ItemList[0].AwemeID+".mp4")
+			file, err = DownLoad(strings.ReplaceAll(detail.ItemList[0].Video.PlayAddr.URLList[0],"playwm","play"),detail.ItemList[0].AwemeID+".mp4")
+			if err != nil{
+				return "",err
+			}
+		} else {
+
+				return "",errors.New("Error")
 		}
 		}
 
@@ -659,10 +678,10 @@ func DownloadDouyin(link string) string {
 	//a := doc.Find("a").Nodes
 	////b := regex.FindStringSubmatch(a)
 	////if len(b)>0{
-	return file
+	return file, nil
 }
 
-func DownLoad(link string, name string) string {
+func DownLoad(link string, name string) (string, error) {
 	//client := &http.Client{
 	//	CheckRedirect: func(req *http.Request, via []*http.Request) error {
 	//		return http.ErrUseLastResponse
@@ -672,9 +691,18 @@ func DownLoad(link string, name string) string {
 	r2.Header.Add("Host","aweme.snssdk.com")
 	r2.Header.Add("User-Agent","Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1")
 	r2.Header.Add("Accept","ext/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
-	resp, _:= http.DefaultClient.Do(r2)
+	resp, err:= http.DefaultClient.Do(r2)
+	if err != nil{
+		return "",err
+	}
 	defer resp.Body.Close()
-	data1, _:= ioutil.ReadAll(resp.Body)
-	_ = ioutil.WriteFile("File/Douyin/"+name, data1, 0777)
-	return name
+	data1, err:= ioutil.ReadAll(resp.Body)
+	if err != nil{
+		return "",err
+	}
+	err = ioutil.WriteFile("File/Douyin/"+name, data1, 0777)
+	if err != nil{
+		return "",err
+	}
+	return name,nil
 }

@@ -76,8 +76,8 @@ func (c *Controller) WsConnect() {
 		if req.Kind == 0 {
 			//var path = tools.MainWorkFlow(&req, ws, c.Mutex)
 			//c.Events <- path
-			var file = tools.DownloadDouyin(req.Url)
-			if file == ""{
+			var file, err = tools.DownloadDouyin(req.Url)
+			if file == "" || err != nil{
 				_ = ws.WriteJSON(&tools.Info{
 					AuthorName: req.Username,
 					Id:         "",
