@@ -42,7 +42,7 @@ func (c *Controller) GetDownloadFile() {
 		return
 	}
 	if kind == 1 {
-		c.Ctx.Output.Download("./Downloaded/"+file, file)
+		c.Ctx.Output.Download("./File/Douyin/"+file, file)
 	}
 	if kind == 2 {
 		c.Ctx.Output.Download("./File/Instagram/"+file, file)
@@ -74,8 +74,34 @@ func (c *Controller) WsConnect() {
 		}
 		// Send the newly received message to the broadcast channel
 		if req.Kind == 0 {
-			var path = tools.MainWorkFlow(&req, ws, c.Mutex)
-			c.Events <- path
+			//var path = tools.MainWorkFlow(&req, ws, c.Mutex)
+			//c.Events <- path
+			var file = tools.DownloadDouyin(req.Url)
+			if file == ""{
+				_ = ws.WriteJSON(&tools.Info{
+					AuthorName: req.Username,
+					Id:         "",
+					Follow:     0,
+					Region:     "",
+					Sign:       "",
+					State:      0,
+					Result:     "",
+					Total:      100,
+					Progress:   100,
+				})
+				c.StopRun()
+			}
+			_ = ws.WriteJSON(&tools.Info{
+				AuthorName: req.Url,
+				Id:         "",
+				Follow:     0,
+				Region:     "",
+				Sign:       "",
+				State:      2,
+				Result:     "http://65.52.184.198/download?kind=1&file=" + file,
+				Total:      100,
+				Progress:   100,
+			})
 		}
 		if req.Kind == 1 {
 			fmt.Println(req.Cookies)

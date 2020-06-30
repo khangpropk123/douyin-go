@@ -14,12 +14,10 @@ import (
 	"fyne.io/fyne/layout"
 	"fyne.io/fyne/widget"
 	"github.com/astaxie/beego"
-	igdl "github.com/siongui/instago/download"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
@@ -33,25 +31,25 @@ const NORMAL_HEADER = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537
 var listPost = list.New()
 
 func main() {
-	var cookies = `{
-  "ig_did": "8FEEA7BB-44E9-401B-ABAC-3509E2210FCB",
-  "mid": "Xu2XzgAEAAHocYj0dHvMbBlctYLt",
-  "csrftoken": "9q4HTaV0wbLsxUgYTR89DcGgz4XJ3Rid",
-  "sessionid": "3552854888%3Af3VKB0XRTADAit%3A6",
-  "shbid": "14325",
-  "shbts": "1592629478.7045903",
-  "rur": "ATN",
-  "ds_user_id": "3552854888",
-  "urlgen": "\"{\\\"14.161.27.255\\\": 45899}:1jmVgy:eGmat7x4WzhKgV40TAV8utShOZQ\""
-}`
-	_, _ = exec.Command("cmd", "set", "FYNE_FONT=font.ttf").CombinedOutput()
-	tools.DownloadFileIG("withnhuu", cookies)
-	GetInstaCookie("khang.kira.1204", "123456love")
-	ig, err := igdl.NewInstagramDownloadManager("auth.json")
-	if err != nil {
-		fmt.Println(err)
-	}
-	ig.DownloadUserStoryHighlightsByName("katie.creepie")
+//	var cookies = `{
+	////  "ig_did": "8FEEA7BB-44E9-401B-ABAC-3509E2210FCB",
+	////  "mid": "Xu2XzgAEAAHocYj0dHvMbBlctYLt",
+	////  "csrftoken": "9q4HTaV0wbLsxUgYTR89DcGgz4XJ3Rid",
+	////  "sessionid": "3552854888%3Af3VKB0XRTADAit%3A6",
+	////  "shbid": "14325",
+	////  "shbts": "1592629478.7045903",
+	////  "rur": "ATN",
+	////  "ds_user_id": "3552854888",
+	////  "urlgen": "\"{\\\"14.161.27.255\\\": 45899}:1jmVgy:eGmat7x4WzhKgV40TAV8utShOZQ\""
+	////}`
+	////	_, _ = exec.Command("cmd", "set", "FYNE_FONT=font.ttf").CombinedOutput()
+	////	tools.DownloadFileIG("withnhuu", cookies)
+	////	GetInstaCookie("khang.kira.1204", "123456love")
+	////	ig, err := igdl.NewInstagramDownloadManager("auth.json")
+	////	if err != nil {
+	////		fmt.Println(err)
+	////	}
+	////	ig.DownloadUserStoryHighlightsByName("katie.creepie")
 	a := app.New()
 	data, _ := ioutil.ReadFile("icon.png")
 	src := fyne.NewStaticResource("icon", data)
@@ -229,7 +227,7 @@ func GetSignature(sign *model.SignaturePost) *model.SignatureResp {
 }
 
 func GetPostData(uid string, sign string, maxCursor int) *model.DouyinPost {
-	var baseUrl = fmt.Sprintf(`https://www.iesdouyin.com/web/api/v2/aweme/post/?user_id=%s&sec_uid=&count=21&max_cursor=%d&aid=1128&_signature=%s`, uid, maxCursor, sign)
+	var baseUrl = fmt.Sprintf(`https://www.iesdouyin.com/web/api/v2/aweme/post/?user_id=%s&sec_uid=&count=21&max_cursor=%d&aid=1128&_signature=%s`, "59962969944", maxCursor, "2CoKMAAAhuCr3ABfPrY2LdgqCi")
 	fmt.Println(baseUrl)
 	req, err := http.NewRequest("GET", baseUrl, nil)
 	if err != nil {

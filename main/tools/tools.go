@@ -471,3 +471,205 @@ func DownloadFileFb(link string) string {
 	}
 
 }
+
+type VideoDetail struct {
+	StatusCode int `json:"status_code"`
+	ItemList   []struct {
+		Video struct {
+			Cover struct {
+				URI     string   `json:"uri"`
+				URLList []string `json:"url_list"`
+			} `json:"cover"`
+			DynamicCover struct {
+				URI     string   `json:"uri"`
+				URLList []string `json:"url_list"`
+			} `json:"dynamic_cover"`
+			OriginCover struct {
+				URI     string   `json:"uri"`
+				URLList []string `json:"url_list"`
+			} `json:"origin_cover"`
+			Ratio        string      `json:"ratio"`
+			HasWatermark bool        `json:"has_watermark"`
+			BitRate      interface{} `json:"bit_rate"`
+			Vid          string      `json:"vid"`
+			PlayAddr     struct {
+				URI     string   `json:"uri"`
+				URLList []string `json:"url_list"`
+			} `json:"play_addr"`
+			Height   int `json:"height"`
+			Width    int `json:"width"`
+			Duration int `json:"duration"`
+		} `json:"video"`
+		UniqidPosition interface{} `json:"uniqid_position"`
+		CommentList    interface{} `json:"comment_list"`
+		Desc           string      `json:"desc"`
+		Music          struct {
+			Title   string `json:"title"`
+			Author  string `json:"author"`
+			CoverHd struct {
+				URLList []string `json:"url_list"`
+				URI     string   `json:"uri"`
+			} `json:"cover_hd"`
+			CoverMedium struct {
+				URI     string   `json:"uri"`
+				URLList []string `json:"url_list"`
+			} `json:"cover_medium"`
+			Position   interface{} `json:"position"`
+			Status     int         `json:"status"`
+			ID         int64       `json:"id"`
+			Mid        string      `json:"mid"`
+			CoverLarge struct {
+				URI     string   `json:"uri"`
+				URLList []string `json:"url_list"`
+			} `json:"cover_large"`
+			CoverThumb struct {
+				URI     string   `json:"uri"`
+				URLList []string `json:"url_list"`
+			} `json:"cover_thumb"`
+			PlayURL struct {
+				URI     string   `json:"uri"`
+				URLList []string `json:"url_list"`
+			} `json:"play_url"`
+			Duration int `json:"duration"`
+		} `json:"music"`
+		Statistics struct {
+			CommentCount int    `json:"comment_count"`
+			DiggCount    int    `json:"digg_count"`
+			AwemeID      string `json:"aweme_id"`
+		} `json:"statistics"`
+		ShareInfo struct {
+			ShareDesc      string `json:"share_desc"`
+			ShareTitle     string `json:"share_title"`
+			ShareWeiboDesc string `json:"share_weibo_desc"`
+		} `json:"share_info"`
+		AwemeType int         `json:"aweme_type"`
+		Position  interface{} `json:"position"`
+		LongVideo interface{} `json:"long_video"`
+		ChaList   []struct {
+			ChaName        string      `json:"cha_name"`
+			Desc           string      `json:"desc"`
+			UserCount      int         `json:"user_count"`
+			Cid            string      `json:"cid"`
+			ConnectMusic   interface{} `json:"connect_music"`
+			Type           int         `json:"type"`
+			ViewCount      int         `json:"view_count"`
+			HashTagProfile string      `json:"hash_tag_profile"`
+			IsCommerce     bool        `json:"is_commerce"`
+		} `json:"cha_list"`
+		IsLiveReplay bool        `json:"is_live_replay"`
+		Duration     int         `json:"duration"`
+		LabelTopText interface{} `json:"label_top_text"`
+		Author       struct {
+			TypeLabel        interface{} `json:"type_label"`
+			Nickname         string      `json:"nickname"`
+			PlatformSyncInfo interface{} `json:"platform_sync_info"`
+			Signature        string      `json:"signature"`
+			AvatarLarger     struct {
+				URI     string   `json:"uri"`
+				URLList []string `json:"url_list"`
+			} `json:"avatar_larger"`
+			AvatarThumb struct {
+				URI     string   `json:"uri"`
+				URLList []string `json:"url_list"`
+			} `json:"avatar_thumb"`
+			AvatarMedium struct {
+				URI     string   `json:"uri"`
+				URLList []string `json:"url_list"`
+			} `json:"avatar_medium"`
+			UniqueID        string      `json:"unique_id"`
+			FollowersDetail interface{} `json:"followers_detail"`
+			UID             string      `json:"uid"`
+			ShortID         string      `json:"short_id"`
+			Geofencing      interface{} `json:"geofencing"`
+			PolicyVersion   interface{} `json:"policy_version"`
+		} `json:"author"`
+		RiskInfos struct {
+			Warn    bool   `json:"warn"`
+			Type    int    `json:"type"`
+			Content string `json:"content"`
+		} `json:"risk_infos"`
+		AuthorUserID int64       `json:"author_user_id"`
+		Geofencing   interface{} `json:"geofencing"`
+		GroupID      int64       `json:"group_id"`
+		ShareURL     string      `json:"share_url"`
+		TextExtra    []struct {
+			Start       int    `json:"start"`
+			End         int    `json:"end"`
+			Type        int    `json:"type"`
+			HashtagName string `json:"hashtag_name"`
+			HashtagID   int64  `json:"hashtag_id"`
+		} `json:"text_extra"`
+		Promotions  interface{} `json:"promotions"`
+		ForwardID   string      `json:"forward_id"`
+		AwemeID     string      `json:"aweme_id"`
+		CreateTime  int         `json:"create_time"`
+		VideoLabels interface{} `json:"video_labels"`
+		ImageInfos  interface{} `json:"image_infos"`
+		VideoText   interface{} `json:"video_text"`
+		IsPreview   int         `json:"is_preview"`
+	} `json:"item_list"`
+	Extra struct {
+		Now   int64  `json:"now"`
+		Logid string `json:"logid"`
+	} `json:"extra"`
+}
+
+func DownloadDouyin(link string) string {
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		} }
+
+
+	r, _ := http.NewRequest("GET", link, nil)
+	//r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	r.Header.Add("Host","v.douyin.com")
+	r.Header.Add("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+	r.Header.Add("Accept-Language","zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2")
+	//r.Header.Add("Accept-Encoding","gzip, deflate")
+	r.Header.Add("Connection","keep-alive")
+	r.Header.Add("Upgrade-Insecure-Requests","1")
+	r.Header.Add("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0")
+	resp,_ := client.Do(r)
+	defer resp.Body.Close()
+	nextlink,_ := resp.Location()
+	url_id := strings.Split(nextlink.String(),"/")
+	var file = ""
+	if len(url_id) > 6{
+		r2 , _:= http.NewRequest("GET","https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids="+url_id[5],nil)
+		r2.Header.Add("Host","www.iesdouyin.com")
+		r2.Header.Add("Accept","*/*")
+		r2.Header.Add("X-Requested-With","XMLHttpRequest")
+		r2.Header.Add("Referer",nextlink.String())
+		resp2, _ := client.Do(r2)
+		defer resp2.Body.Close()
+		data, _ := ioutil.ReadAll(resp2.Body)
+		var detail  VideoDetail
+		_ = json.Unmarshal(data, &detail)
+		fmt.Println(detail.ItemList[0].Video.PlayAddr.URLList[0])
+		 file = DownLoad(strings.ReplaceAll(detail.ItemList[0].Video.PlayAddr.URLList[0],"playwm","play"),detail.ItemList[0].AwemeID+".mp4")
+	}
+
+	////regex := regexp.MustCompile(`([0-9]+)`)
+	//a := doc.Find("a").Nodes
+	////b := regex.FindStringSubmatch(a)
+	////if len(b)>0{
+	return file
+}
+
+func DownLoad(link string, name string) string {
+	//client := &http.Client{
+	//	CheckRedirect: func(req *http.Request, via []*http.Request) error {
+	//		return http.ErrUseLastResponse
+	//	} }
+	r2 , _:= http.NewRequest("GET",link,nil)
+
+	r2.Header.Add("Host","aweme.snssdk.com")
+	r2.Header.Add("User-Agent","Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1")
+	r2.Header.Add("Accept","ext/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+	resp, _:= http.DefaultClient.Do(r2)
+	defer resp.Body.Close()
+	data1, _:= ioutil.ReadAll(resp.Body)
+	_ = ioutil.WriteFile("File/Douyin/"+name, data1, 0777)
+	return name
+}
