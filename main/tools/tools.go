@@ -645,10 +645,15 @@ func DownloadDouyin(link string) string {
 		defer resp2.Body.Close()
 		data, _ := ioutil.ReadAll(resp2.Body)
 		var detail  VideoDetail
-		_ = json.Unmarshal(data, &detail)
-		fmt.Println(detail.ItemList[0].Video.PlayAddr.URLList[0])
-		 file = DownLoad(strings.ReplaceAll(detail.ItemList[0].Video.PlayAddr.URLList[0],"playwm","play"),detail.ItemList[0].AwemeID+".mp4")
-	}
+		err := json.Unmarshal(data, &detail)
+		if err!= nil{
+			return ""
+		}
+		if len(detail.ItemList)>0{
+			fmt.Println(detail.ItemList[0].Video.PlayAddr.URLList[0])
+			file = DownLoad(strings.ReplaceAll(detail.ItemList[0].Video.PlayAddr.URLList[0],"playwm","play"),detail.ItemList[0].AwemeID+".mp4")
+		}
+		}
 
 	////regex := regexp.MustCompile(`([0-9]+)`)
 	//a := doc.Find("a").Nodes

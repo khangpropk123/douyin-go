@@ -143,9 +143,9 @@ class Content1 extends React.Component {
     return(
       <Form {...this.layout}>
         <Form.Item
-        label="Link Profile"
+        label="User Profile"
         name="url"
-        rules={[{ required: true, message: 'Please input profile link!' }]}
+        rules={[{ required: true, message: 'Please input profile username!' }]}
       >
         <Input onChange={this.changeUsername} />
       </Form.Item>
