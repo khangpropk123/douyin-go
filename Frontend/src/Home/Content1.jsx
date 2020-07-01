@@ -54,6 +54,7 @@ class Content1 extends React.Component {
   handleTiktok=(kind)=>{
     let cookiesObj = {}
 
+    let rand = Math.floor(Math.random() * Math.floor(50));
     try {
       cookiesObj = JSON.parse(this.state.cookies)
       console.log(cookiesObj)
@@ -78,6 +79,9 @@ class Content1 extends React.Component {
       modelVisible:true
     })
     ws.onmessage= (mess)=>{
+      this.setState({
+        progress:rand
+      })
       console.log(mess)
       let res = JSON.parse(mess.data)
       console.log(res)
