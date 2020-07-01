@@ -74,14 +74,14 @@ class Content1 extends React.Component {
     let ws = new WebSocket("ws://65.52.184.198/tiktok")
     ws.onopen  = (event)=>{
       ws.send(JSON.stringify(data))
+      this.setState({
+        progress:rand
+      })
     }
     this.setState({
       modelVisible:true
     })
     ws.onmessage= (mess)=>{
-      this.setState({
-        progress:rand
-      })
       console.log(mess)
       let res = JSON.parse(mess.data)
       console.log(res)
